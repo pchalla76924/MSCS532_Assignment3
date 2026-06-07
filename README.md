@@ -3,14 +3,14 @@
 ## Files Included
 
 - `algorithms.py`
-  - Randomized Quicksort
-  - Deterministic Quicksort
+  - Randomized Quicksort function
+  - Deterministic Quicksort function
   - Hash Table with Chaining
 
 - `benchmark.py`
   - Empirical comparison of Randomized Quicksort and Deterministic Quicksort
 
-- `report.docx` or `report.pdf`
+- `REPORT.md`
   - APA-formatted analysis and discussion
 
 ## How to Run
@@ -19,4 +19,6 @@
 ```bash
 python algorithms.py
 
-
+### Run the benchmark.py for emperical comparision
+```bash
+python benchmark.py
