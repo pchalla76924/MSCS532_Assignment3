@@ -120,13 +120,13 @@ That version can behave poorly on already sorted or reverse-sorted inputs. If th
 That gives the recurrence:
 
 \[
-T(n)=T(n-1)+\Theta(n)
+T(n)=T(n-1)+\Θ(n)
 \]
 
 which solves to:
 
 \[
-\Theta(n^2)
+\Θ(n^2)
 \]
 
 So even though deterministic first-pivot Quicksort may look fine on random input, it becomes unreliable on structured inputs.
@@ -256,7 +256,7 @@ There are several ways to reduce the performance cost of collisions:
 
 This assignment showed that algorithm efficiency depends on both theory and implementation.
 
-Randomized Quicksort remains efficient on average because random pivot selection prevents the same bad split pattern from repeating consistently. The indicator-variable analysis provides a rigorous reason for why the expected running time is \(O(n \log n)\). In contrast, deterministic first-pivot Quicksort can degrade to \( \Theta(n^2) \) on sorted or reverse-sorted input.
+Randomized Quicksort remains efficient on average because random pivot selection prevents the same bad split pattern from repeating consistently. The indicator-variable analysis provides a rigorous reason for why the expected running time is \(O(n \log n)\). In contrast, deterministic first-pivot Quicksort can degrade to \( \	Θ(n^2) \) on sorted or reverse-sorted input.
 
 Hashing with chaining illustrates a different side of algorithm analysis. Under simple uniform hashing, insert, search, and delete remain efficient in expectation, but that result depends on controlling collisions and keeping the load factor from growing too large.
 
