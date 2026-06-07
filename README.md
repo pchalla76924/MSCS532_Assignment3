@@ -18,6 +18,7 @@
 ### Run the algorithm code
 ```bash
 python algorithms.py
+```
 
 ### Run the benchmark.py for emperical comparision
 ```bash
