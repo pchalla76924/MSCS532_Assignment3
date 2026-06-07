@@ -1,279 +1,221 @@
 # Understanding Algorithm Efficiency and Scalability: Randomized Quicksort and Hashing With Chaining
 
-
 ## Introduction
 
 One of the main reasons algorithm analysis matters is that two correct solutions can behave very differently when the input becomes large or structured in an unfavorable way. In other words, correctness alone is not enough. A good algorithm should also remain efficient as the problem scales.
 
-This assignment focuses on two common algorithmic ideas. The first is Quicksort, a widely used divide-and-conquer sorting algorithm. Although Quicksort is often fast in practice, its performance depends heavily on pivot selection. A poor pivot rule can cause serious slowdowns. Randomization improves Quicksort by making bad pivot patterns much less likely. Analyses of Randomized Quicksort show that its expected number of comparisons is \(O(n \log n)\), which explains why it remains efficient on average even though individual runs may vary.
+This assignment focuses on two important algorithmic ideas. The first is Quicksort, a widely used divide-and-conquer sorting algorithm. Although Quicksort is often fast in practice, its performance depends heavily on how the pivot is chosen. A poor pivot rule can cause serious slowdowns. Randomization improves Quicksort by making bad pivot patterns much less likely. Previous studies of Randomized Quicksort show that its expected number of comparisons is **O(n log n)**, which explains why it remains efficient on average even though individual runs may vary (Acharya, n.d.; Sryheni, 2024).
 
-The second topic is hashing with chaining. Hashing supports efficient retrieval by mapping keys into slots of a table. Because collisions are unavoidable, a collision-resolution strategy is needed. Chaining is a standard method in which each slot stores a linked list of all items that hash there. Under simple uniform hashing, the expected running time of insert, search, and delete operations depends on the load factor \( \alpha = n/m \), where \(n\) is the number of elements and \(m\) is the number of slots.
+The second topic is hashing with chaining. Hashing supports efficient retrieval by mapping keys into slots of a table. Because collisions are unavoidable, a way to handle them is needed. Chaining is a common approach where each slot stores a linked list of all values that map to that slot. Under simple uniform hashing, the expected running time of insert, search, and delete operations depends on the load factor (**α = n/m**), where *n* is the number of elements and *m* is the number of slots (Cormen et al., 2001; GeeksforGeeks, 2025a).
 
-Together, these two topics show how theoretical analysis and practical performance connect.
-
----
-
-# Part 1: Randomized Quicksort
-
-## Implementation
-
-I implemented Randomized Quicksort so that the pivot is chosen uniformly at random from the current subarray in every recursive call. This follows the requirement from the assignment and avoids the weakness of using a fixed pivot rule.
-
-I used a three-way partitioning strategy. Instead of dividing values only into “less than pivot” and “greater than pivot,” the algorithm creates three groups:
-
-- values less than the pivot
-- values equal to the pivot
-- values greater than the pivot
-
-This choice helps the implementation handle repeated values more efficiently. It also makes the algorithm more stable on inputs with many duplicates.
-
-The implementation correctly handles edge cases such as:
-
-- empty arrays
-- single-element arrays
-- already sorted arrays
-- reverse-sorted arrays
-- arrays containing repeated elements
+Together, these topics show how theory and real implementation come together when analyzing algorithm efficiency.
 
 ---
 
-## Average-Case Analysis
+## Part 1: Randomized Quicksort
 
-A rigorous way to analyze Randomized Quicksort is to count the expected number of comparisons.
+### Implementation
 
-Let the input elements be written in sorted order as:
+I implemented Randomized Quicksort so that the pivot is chosen randomly from the current subarray in every recursive call. This avoids the weakness of always picking a fixed position like the first element.
 
-\[
-z_1, z_2, \dots, z_n
-\]
+To make the implementation more effective, I used three-way partitioning. Instead of splitting into just two parts, the algorithm separates elements into:
 
-For each pair \((i,j)\) with \(i < j\), define an indicator random variable:
+- values less than the pivot 
+- values equal to the pivot 
+- values greater than the pivot 
 
-\[
-X_{ij} =
-\begin{cases}
-1, & \text{if } z_i \text{ and } z_j \text{ are compared} \\
-0, & \text{otherwise}
-\end{cases}
-\]
+This approach works better when there are duplicate values because it avoids unnecessary recursive calls on equal elements.
 
-The total number of comparisons made by the algorithm is then:
+The implementation correctly handles several edge cases such as:
 
-\[
-X = \sum_{1 \le i < j \le n} X_{ij}
-\]
-
-The key observation is that two elements \(z_i\) and \(z_j\) are compared only if one of them is the first pivot chosen from the set:
-
-\[
-\{z_i, z_{i+1}, \dots, z_j\}
-\]
-
-If any element between them is selected as the first pivot, then the partition step separates the pair into different recursive subproblems, and they will never be compared later.
-
-Since the pivot is chosen uniformly at random, the probability that either endpoint \(z_i\) or \(z_j\) is selected first from that set is:
-
-\[
-P(X_{ij}=1)=\frac{2}{j-i+1}
-\]
-
-Now apply linearity of expectation:
-
-\[
-E[X] = E\left[\sum_{1 \le i < j \le n} X_{ij}\right]
-\]
-
-\[
-= \sum_{1 \le i < j \le n} E[X_{ij}]
-\]
-
-\[
-= \sum_{1 \le i < j \le n} P(X_{ij}=1)
-\]
-
-\[
-= \sum_{1 \le i < j \le n} \frac{2}{j-i+1}
-\]
-
-This sum is bounded by a harmonic-series expression and simplifies to:
-
-\[
-E[X] = O(n \log n)
-\]
-
-Because the running time of Quicksort is proportional to its comparisons and partitioning work, the expected running time of Randomized Quicksort is:
-
-\[
-O(n \log n)
-\]
-
-This is the main reason Randomized Quicksort is considered more reliable than fixed-pivot Quicksort for general use.
+- empty arrays 
+- single-element arrays 
+- already sorted arrays 
+- reverse-sorted arrays 
+- arrays with repeated values 
 
 ---
 
-## Deterministic Quicksort Comparison
+### Average-Case Analysis
+
+A more precise way to analyze Randomized Quicksort is by looking at the expected number of comparisons.
+
+Assume the input elements are sorted as:
+
+z₁, z₂, …, zₙ
+
+
+For each pair *(i, j)* where *i < j*, define an indicator variable:
+
+Xᵢⱼ = 1 if zᵢ and zⱼ are compared
+Xᵢⱼ = 0 otherwise
+
+
+The total number of comparisons is:
+
+X = Σ Xᵢⱼ
+
+
+Two elements are compared only if one of them is chosen as the first pivot among:
+
+{zᵢ, zᵢ₊₁, …, zⱼ}
+
+
+Because the pivot is selected randomly:
+
+P(Xᵢⱼ = 1) = 2 / (j − i + 1)
+
+
+Using linearity of expectation:
+
+E[X] = Σ P(Xᵢⱼ = 1)
+
+
+This simplifies to a harmonic series, resulting in:
+
+E[X] = O(n log n)
+
+
+So, the expected running time of Randomized Quicksort is:
+
+**O(n log n)**
+
+---
+
+### Deterministic Quicksort Comparison
 
 For comparison, I also implemented deterministic Quicksort using the first element as the pivot.
 
-That version can behave poorly on already sorted or reverse-sorted inputs. If the first element is always the smallest or largest item, the partitions become extremely unbalanced. Instead of splitting the problem into two smaller pieces of similar size, the algorithm produces one empty side and one subarray of size \(n-1\).
+In this case, the recurrence becomes:
 
-That gives the recurrence:
+T(n) = T(n − 1) + Θ(n)
 
-\[
-T(n)=T(n-1)+\Θ(n)
-\]
 
 which solves to:
 
-\[
-\Θ(n^2)
-\]
+Θ(n²)
 
-So even though deterministic first-pivot Quicksort may look fine on random input, it becomes unreliable on structured inputs.
 
----
-
-## Empirical Comparison
-
-I compared Randomized Quicksort and deterministic first-pivot Quicksort on the following kinds of arrays:
-
-1. randomly generated arrays 
-2. already sorted arrays 
-3. reverse-sorted arrays 
-4. arrays with repeated elements 
-
-The benchmark script in this repository measures average runtime across multiple trials.
-
-### Observed Trends
-
-The empirical results matched the theoretical expectations in a clear way:
-
-- On **random arrays**, both algorithms performed reasonably well. 
-- On **sorted** and **reverse-sorted arrays**, deterministic Quicksort slowed down much more noticeably as input size increased. 
-- Randomized Quicksort remained more stable across all categories. 
-- On **arrays with repeated elements**, both algorithms improved because the three-way partitioning approach grouped equal values efficiently.
-
-One detail worth noting is that deterministic Quicksort can sometimes appear slightly faster on small random inputs because it avoids the overhead of selecting random pivots. However, that small constant-factor difference does not change the bigger picture. Randomized Quicksort is more robust when the input structure is unfavorable.
+This happens when the pivot repeatedly ends up being the smallest or largest element, causing very unbalanced partitions.
 
 ---
 
-# Part 2: Hashing With Chaining
+### Empirical Comparison
 
-## Implementation
+I compared the two algorithms using:
 
-The second part of the assignment required implementing a hash table using chaining.
+1. Random arrays  
+2. Already sorted arrays  
+3. Reverse-sorted arrays  
+4. Arrays with repeated elements  
 
-In this design, the hash table is an array of slots. Each slot stores the head of a linked list containing all key-value pairs that map to that index. When two keys hash to the same slot, the collision is resolved by storing both elements in the same chain.
+#### Observed Trends
 
-The implementation supports the required operations:
-
-- **Insert** – add or update a key-value pair 
-- **Search** – retrieve the value for a given key 
-- **Delete** – remove a key-value pair 
-
-To reduce predictable collision patterns, I used a modular arithmetic compression method:
-
-\[
-h(k)=((a \cdot \text{hash}(k)+b)\bmod p)\bmod m
-\]
-
-where:
-
-- \(p\) is a large prime
-- \(a\) and \(b\) are randomly selected constants
-- \(m\) is the current table size
-
-I also included **dynamic resizing**. When the load factor becomes too large, the table expands and all existing key-value pairs are rehashed into the larger table.
+- On **random arrays**, both algorithms performed similarly  
+- On **sorted and reverse-sorted arrays**, deterministic Quicksort slowed down significantly  
+- **Randomized Quicksort remained stable** across all inputs  
+- On **arrays with repeated values**, performance improved due to three-way partitioning  
 
 ---
 
-## Expected-Time Analysis Under Simple Uniform Hashing
+## Part 2: Hashing With Chaining
 
-The usual assumption for analyzing hashing is **simple uniform hashing**. This means each key is equally likely to hash to any slot, independently of the others.
+### Implementation
 
-If the table contains \(n\) elements and has \(m\) slots, then the load factor is:
+In this part, I implemented a hash table using chaining.
 
-\[
-\alpha = \frac{n}{m}
-\]
+- The table is an array of slots  
+- Each slot contains a linked list  
+- Collisions are handled by storing multiple values in the same list  
 
-This value represents the average number of elements stored per slot.
+Supported operations:
 
-Because separate chaining stores collisions in linked lists, the expected length of a chain is approximately \( \alpha \). Therefore, the expected running times become:
+- **Insert** – add or update key-value pair  
+- **Search** – retrieve value  
+- **Delete** – remove key-value pair  
 
-- **Unsuccessful search:** \(O(1+\alpha)\)
-- **Successful search:** \(O(1+\alpha)\)
-- **Insert:** \(O(1+\alpha)\)
-- **Delete:** \(O(1+\alpha)\)
+The hash function used:
 
-The reason for the extra \(+\alpha\) term is simple: after computing the hash index in constant time, the algorithm may still need to walk through a chain of expected length \( \alpha \).
+h(k) = ((a · hash(k) + b) mod p) mod m
 
-In the worst case, if many keys collide into one slot, the chain could grow to length \(n\), making operations \(O(n)\). However, under simple uniform hashing and with proper load-factor control, expected performance remains efficient.
 
----
+Where:
 
-## Effect of the Load Factor
+- *p* is a large prime  
+- *a* and *b* are random constants  
+- *m* is the table size  
 
-The load factor has a direct effect on performance.
-
-If \( \alpha \) is small:
-
-- chains are short
-- collisions are less frequent
-- insert, search, and delete stay fast
-
-If \( \alpha \) becomes large:
-
-- chains become longer
-- more comparisons are needed inside each chain
-- operation time increases
-
-This is why resizing matters. A good hash table should not keep growing indefinitely without increasing its number of slots. Once the table becomes too full, performance gradually weakens.
-
-In this implementation, resizing occurs when the load factor exceeds a threshold. This keeps the average chain length under control and helps preserve expected-time efficiency.
+Dynamic resizing is used when the table becomes too full.
 
 ---
 
-## Strategies for Reducing Collisions
+### Expected-Time Analysis
 
-There are several ways to reduce the performance cost of collisions:
+Under simple uniform hashing:
 
-1. **Use a better hash compression method** 
-   A more carefully designed hash function can spread keys more evenly.
+- Each key is equally likely to map to any slot  
 
-2. **Resize the table dynamically** 
-   Increasing the number of slots reduces the average chain length.
+Let:
 
-3. **Maintain a reasonable load factor** 
-   Keeping \( \alpha \) low is one of the simplest and most effective ways to maintain good performance.
+- *n* = number of elements  
+- *m* = number of slots  
+- *α = n/m* (load factor)  
 
-4. **Choose a suitable data structure for each chain** 
-   In this assignment, linked lists are used because they are straightforward and fit well with chaining.
+Expected runtimes:
 
----
-
-# Conclusion
-
-This assignment showed that algorithm efficiency depends on both theory and implementation.
-
-Randomized Quicksort remains efficient on average because random pivot selection prevents the same bad split pattern from repeating consistently. The indicator-variable analysis provides a rigorous reason for why the expected running time is \(O(n \log n)\). In contrast, deterministic first-pivot Quicksort can degrade to \( \	Θ(n^2) \) on sorted or reverse-sorted input.
-
-Hashing with chaining illustrates a different side of algorithm analysis. Under simple uniform hashing, insert, search, and delete remain efficient in expectation, but that result depends on controlling collisions and keeping the load factor from growing too large.
-
-The biggest lesson from this assignment is that performance guarantees are not just abstract formulas. They depend on assumptions, input structure, and implementation choices. That is what makes algorithm analysis useful in practice.
+- Unsuccessful search → **O(1 + α)**  
+- Successful search → **O(1 + α)**  
+- Insert → **O(1 + α)**  
+- Delete → **O(1 + α)**  
 
 ---
 
-# References
+### Effect of Load Factor
 
-Acharya, M. (n.d.). *Expected number of comparisons in randomized quicksort*. [PDF](https://acharyamanish.net/expository-notes/comparison-random-quicksort.pdf)
+If **α is small**:
 
-Bagchi, A. (2025, July 27). *Running time analysis for randomized quicksort*. [PDF](https://www.cse.iitd.ac.in/~bagchi/courses/COL863_25-26/randomized-quicksort-analysis-july-2025v2.pdf)
+- chains are short  
+- collisions are fewer  
+- operations are faster  
 
-Baeldung. (2024, March 18). *Quick sort worst case time complexity*. [Article](https://www.baeldung.com/cs/quicksort-time-complexity-worst-case)
+If **α is large**:
 
-Duke University. (n.d.). *Hash tables*. [PDF](https://users.cs.duke.edu/~reif/courses/alglectures/upfal.lectures/hash.pdf)
+- chains grow longer  
+- more comparisons are needed  
+- performance decreases  
 
-Programming.Guide. (n.d.). *Hash tables: Complexity*. [Article](https://programming.guide/hash-tables-complexity.html)
+Resizing helps maintain efficiency by reducing α.
 
-University of Iowa. (2019, October 22). *Randomized quicksort* (CS:5350 lecture notes). [PDF](https://homepage.cs.uiowa.edu/~sriram/5350/fall19/notes/10.22/10.22.pdf)
+---
+
+### Reducing Collisions
+
+Common strategies:
+
+1. Use a better hash function  
+2. Resize dynamically  
+3. Maintain a low load factor  
+4. Use efficient chaining structures  
+
+---
+
+## Conclusion
+
+This assignment showed that algorithm performance is not just about correctness, but also about how the algorithm behaves under different input conditions.
+
+Randomized Quicksort improves stability by reducing the chances of bad pivot selection, keeping its expected runtime at **O(n log n)**. Deterministic Quicksort, on the other hand, can degrade to **O(n²)** on structured inputs.
+
+Hashing with chaining demonstrates how performance can remain efficient as long as collisions are controlled and the load factor is managed.
+
+Overall, this assignment helped connect theoretical analysis with real-world implementation.
+
+---
+
+## References
+
+- Acharya, M. (n.d.). *Expected number of comparisons in randomized quicksort*  
+- Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2001). *Introduction to algorithms*  
+- GeeksforGeeks. (2025a). *Separate chaining collision handling technique in hashing*  
+- GeeksforGeeks. (2025b). *When does the worst case of quicksort occur?*  
+- GeeksforGeeks. (2026). *Load factor and rehashing*  
+- Sryheni, S. (2024). *Understanding randomized quicksort*, Baeldung
